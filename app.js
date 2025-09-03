@@ -18,7 +18,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: true,
-    origin:"https://faff-chat-app-client-v4x6.vercel.app",
+    origin:["https://faff-chat-app-client-v4x6.vercel.app", "http://localhost:5173"],
     credentials: true,
   },
 });
@@ -27,7 +27,7 @@ const io = new Server(httpServer, {
 app.use(
   cors({
     origin: true,
-    origin:"https://faff-chat-app-client-v4x6.vercel.app",
+    origin:["https://faff-chat-app-client-v4x6.vercel.app", "http://localhost:5173"],
     credentials: true,
   })
 );
