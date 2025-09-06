@@ -1,7 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const session = require("express-session");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const connectDataBase = require("./database");
 const PORT = process.env.PORT || 5000;
@@ -34,24 +32,6 @@ app.use(
 
 // express json
 app.use(express.json());
-
-// express sessions
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
-      sameSite: "none"
-    },
-  })
-);
-
-// cookie parser middleware
-app.use(cookieParser());
 
 // database connection
 connectDataBase();
@@ -113,7 +93,7 @@ io.on("connection", (socket) => {
 
       await newMessage.save();
 
-      indexMessageOnQdrant({
+      await indexMessageOnQdrant({
         rooomId: roomId,
         text: newMessage.text,
         senderId: newMessage.senderId,
