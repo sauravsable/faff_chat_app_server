@@ -53,8 +53,6 @@ exports.loginUser = async (req,res,next)=>{
 
 //Logout user
 exports.logout =  async(req,res,next)=>{
-
-    res.clearCookie('token');
     
     res.status(200).json({
         success:true,

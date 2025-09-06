@@ -5,7 +5,7 @@ const connectDataBase = require("./database");
 const PORT = process.env.PORT || 5000;
 const Message = require("./models/messageModel");
 const errorMiddleWare = require("./middleware/error");
-const { indexMessageOnQdrant } = require('./utils/semantic');
+const messageQueue = require("./utils/messageQueue");
 
 const app = express();
 const { createServer } = require("http");
@@ -16,7 +16,10 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: true,
-    origin:["https://faff-chat-app-client-v4x6.vercel.app", "http://localhost:5173"],
+    origin: [
+      "https://faff-chat-app-client-v4x6.vercel.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   },
 });
@@ -25,7 +28,10 @@ const io = new Server(httpServer, {
 app.use(
   cors({
     origin: true,
-    origin:["https://faff-chat-app-client-v4x6.vercel.app", "http://localhost:5173"],
+    origin: [
+      "https://faff-chat-app-client-v4x6.vercel.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
@@ -93,14 +99,15 @@ io.on("connection", (socket) => {
 
       await newMessage.save();
 
-      await indexMessageOnQdrant({
-        rooomId: roomId,
-        text: newMessage.text,
-        senderId: newMessage.senderId,
-        receiverId: newMessage.receiverId,
-        timestamp: new Date(),
-      }).catch((err) => console.error("qdrant index failed:", err));
-  
+      // Push to BullMQ queue for async indexing
+      await messageQueue.add("indexMessage", {
+        roomId,
+        senderId,
+        receiverId,
+        text,
+        timestamp: newMessage.timestamp,
+      });
+
       const populatedMessage = await newMessage.populate("senderId", "name");
 
       // emit only to the private room
