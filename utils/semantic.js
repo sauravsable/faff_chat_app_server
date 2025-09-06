@@ -48,7 +48,7 @@ async function embedText(text) {
   if (!GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY not set");
   const model = genAI.getGenerativeModel({ model: "embedding-001" });
   const result = await model.embedContent(text);
-  return result.embedding.values; // array of floats
+  return result.embedding.values;
 }
 
 async function indexMessageOnQdrant(msg) {
@@ -100,7 +100,7 @@ async function semanticSearchForUser(userId, query, topK = 10) {
     filter,
   });
 
-  return result; // array of { id, payload, score }
+  return result;
 }
 
 module.exports = {

@@ -5,6 +5,7 @@ const {
   logout,
   getUserDetails,
   getAllUsers,
+  semanticSearch,
 } = require("../controller/userController");
 
 const { isAuthenticatedUser } = require("../middleware/auth");
@@ -20,6 +21,6 @@ router.route("/me").get(isAuthenticatedUser, getUserDetails);
 
 router.route("/users").get(isAuthenticatedUser, getAllUsers);
 
-router.route("/semantic-search").get(isAuthenticatedUser, getAllUsers);
+router.route("/semantic-search").get(isAuthenticatedUser,semanticSearch);
 
 module.exports = router;

@@ -7,9 +7,6 @@ const { semanticSearchForUser } = require('../utils/semantic');
 exports.registerUser = async (req, res) => { 
     const {name,email,password} = req.body;
 
-    console.log(name,email, password);
-    
-
     const existingUserName = await User.findOne({ name: name });
 
     if (existingUserName) {
@@ -33,9 +30,7 @@ exports.loginUser = async (req,res,next)=>{
 
     const {email,password} = req.body;
 
-    console.log(email, password);
     
-
     if(!email || !password){
         return next(new ErrorHandler("Please Enter Email & Password",400));
     }
@@ -60,9 +55,6 @@ exports.loginUser = async (req,res,next)=>{
 exports.logout =  async(req,res,next)=>{
 
     res.clearCookie('token');
-
-    console.log("logout");
-    
     
     res.status(200).json({
         success:true,
@@ -94,17 +86,18 @@ exports.getAllUsers = async(req,res,next)=>{
 
 exports.semanticSearch = async (req, res) => {
   try {
-    const { userId, q, top = 10 } = req.query;
-    if (!userId || !q)
-      return res.status(400).json({ error: "userId and q query required" });
+    const { q, top = 10 } = req.query;
+    
+    if (!q)
+      return res.status(400).json({ error: "q query required" });
 
-    const hits = await semanticSearchForUser(userId, q, parseInt(top, 10));
+    const hits = await semanticSearchForUser(req.user._id, q, parseInt(top, 10));
 
     const results = hits.map((h) => ({
       id: h.id,
-      message: h.payload?.message || "",
+      message: h.payload?.text || "",
       score: h.score,
-      createdAt: h.payload?.createdAt || null,
+      createdAt: h.payload?.timestamp || null,
       senderId: h.payload?.senderId,
       receiverId: h.payload?.receiverId,
     }));
